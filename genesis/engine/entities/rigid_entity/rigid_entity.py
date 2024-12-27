@@ -2282,6 +2282,14 @@ class RigidEntity(Entity):
             mass += link.get_mass()
         return mass
 
+    @gs.assert_built
+    def apply_links_external_force(self, force, links_idx, envs_idx=None):
+        self._solver.apply_links_external_force(force, links_idx, envs_idx)
+    
+    @gs.assert_built
+    def apply_links_external_torque(self, torque, links_idx, envs_idx=None):
+        self._solver.apply_links_external_torque(torque, links_idx, envs_idx)
+
     # ------------------------------------------------------------------------------------
     # ----------------------------------- properties -------------------------------------
     # ------------------------------------------------------------------------------------
