@@ -2956,6 +2956,34 @@ class RigidSolver(Solver):
         for i_d_ in range(dofs_idx.shape[0]):
             self.dofs_info[dofs_idx[i_d_]].kv = kv[i_d_]
 
+    def set_dofs_damping(self, damping, dofs_idx):
+        damping, dofs_idx = self._validate_1D_io_variables(damping, dofs_idx, batched=False)
+        self._kernel_set_dofs_damping(damping, dofs_idx)
+
+    @ti.kernel
+    def _kernel_set_dofs_damping(
+        self,
+        damping: ti.types.ndarray(),
+        dofs_idx: ti.types.ndarray(),
+    ):
+        ti.loop_config(serialize=self._para_level < gs.PARA_LEVEL.PARTIAL)
+        for i_d_ in range(dofs_idx.shape[0]):
+            self.dofs_info[dofs_idx[i_d_]].damping = damping[i_d_]
+    
+    def set_dofs_armature(self, armature, dofs_idx):
+        armature, dofs_idx = self._validate_1D_io_variables(armature, dofs_idx, batched=False)
+        self._kernel_set_dofs_armature(armature, dofs_idx)
+
+    @ti.kernel
+    def _kernel_set_dofs_armature(
+        self,
+        armature: ti.types.ndarray(),
+        dofs_idx: ti.types.ndarray(),
+    ):
+        ti.loop_config(serialize=self._para_level < gs.PARA_LEVEL.PARTIAL)
+        for i_d_ in range(dofs_idx.shape[0]):
+            self.dofs_info[dofs_idx[i_d_]].armature = armature[i_d_]
+
     def set_dofs_force_range(self, lower, upper, dofs_idx):
         lower, _ = self._validate_1D_io_variables(lower, dofs_idx, batched=False)
         upper, dofs_idx = self._validate_1D_io_variables(upper, dofs_idx, batched=False)
@@ -3306,6 +3334,12 @@ class RigidSolver(Solver):
     def get_dofs_kv(self, dofs_idx):
         return self._get_dofs_info(dofs_idx, "kv")
 
+    def get_dofs_damping(self, dofs_idx):
+        return self._get_dofs_info(dofs_idx, "damping")
+    
+    def get_dofs_armature(self, dofs_idx):
+        return self._get_dofs_info(dofs_idx, "armature")
+
     def get_dofs_force_range(self, dofs_idx):
         return self._get_dofs_info(dofs_idx, "force_range")
 
@@ -3321,6 +3355,14 @@ class RigidSolver(Solver):
 
         elif name == "kv":
             self._kernel_get_dofs_kv(tensor, dofs_idx)
+            return tensor
+
+        elif name == "damping":
+            self._kernel_get_dofs_damping(tensor, dofs_idx)
+            return tensor
+        
+        elif name == "armature":
+            self._kernel_get_dofs_armature(tensor, dofs_idx)
             return tensor
 
         elif name == "force_range":
@@ -3358,6 +3400,26 @@ class RigidSolver(Solver):
         for i_d_ in range(dofs_idx.shape[0]):
             tensor[i_d_] = self.dofs_info[dofs_idx[i_d_]].kv
 
+    @ti.kernel
+    def _kernel_get_dofs_damping(
+        self,
+        tensor: ti.types.ndarray(),
+        dofs_idx: ti.types.ndarray(),
+    ):
+        ti.loop_config(serialize=self._para_level < gs.PARA_LEVEL.PARTIAL)
+        for i_d_ in range(dofs_idx.shape[0]):
+            tensor[i_d_] = self.dofs_info[dofs_idx[i_d_]].damping
+
+    @ti.kernel
+    def _kernel_get_dofs_armature(
+        self,
+        tensor: ti.types.ndarray(),
+        dofs_idx: ti.types.ndarray(),
+    ):
+        ti.loop_config(serialize=self._para_level < gs.PARA_LEVEL.PARTIAL)
+        for i_d_ in range(dofs_idx.shape[0]):
+            tensor[i_d_] = self.dofs_info[dofs_idx[i_d_]].armature
+    
     @ti.kernel
     def _kernel_get_dofs_force_range(
         self,

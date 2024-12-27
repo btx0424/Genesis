@@ -1745,6 +1745,14 @@ class RigidEntity(Entity):
         self._solver.set_dofs_kv(kv, self._get_dofs_idx(dofs_idx_local))
 
     @gs.assert_built
+    def set_dofs_damping(self, damping, dofs_idx_local=None):
+        self._solver.set_dofs_damping(damping, self._get_dofs_idx(dofs_idx_local))
+    
+    @gs.assert_built
+    def set_dofs_armature(self, armature, dofs_idx_local=None):
+        self._solver.set_dofs_armature(armature, self._get_dofs_idx(dofs_idx_local))
+    
+    @gs.assert_built
     def set_dofs_force_range(self, lower, upper, dofs_idx_local=None):
         """
         Set the entity's dofs' force range.
@@ -1981,6 +1989,14 @@ class RigidEntity(Entity):
         """
         return self._solver.get_dofs_kv(self._get_dofs_idx(dofs_idx_local))
 
+    @gs.assert_built
+    def get_dofs_damping(self, dofs_idx_local=None):
+        return self._solver.get_dofs_damping(self._get_dofs_idx(dofs_idx_local))
+    
+    @gs.assert_built
+    def get_dofs_armature(self, dofs_idx_local=None):
+        return self._solver.get_dofs_armature(self._get_dofs_idx(dofs_idx_local))
+    
     @gs.assert_built
     def get_dofs_force_range(self, dofs_idx_local=None):
         """
